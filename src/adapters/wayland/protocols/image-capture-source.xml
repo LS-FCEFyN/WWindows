@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="ext_image_capture_source_v1">
+  <copyright>
+    Copyright © 2021-2023 Andri Yngvason
+    Copyright © 2024 Simon Ser
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice (including the next
+    paragraph) shall be included in all copies or substantial portions of the
+    Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+  </copyright>
+
+  <description summary="image capture sources">
+    This protocol provides a way to create capture sources from outputs and
+    foreign toplevels. These sources can be used by capture protocols such as
+    ext_image_copy_capture_v1 to capture the contents of the source.
+
+    Warning! The protocol described in this file is currently in the testing
+    phase. Backward compatible changes may be added together with the
+    corresponding interface version bump. Backward incompatible changes can
+    only be done by creating a new major version of the extension.
+  </description>
+
+  <interface name="ext_image_capture_source_manager_v1" version="1">
+    <description summary="manager for image capture sources">
+      This object is a manager which offers requests to create image capture
+      sources from outputs and foreign toplevels.
+    </description>
+
+    <request name="create_from_output">
+      <description summary="create a capture source from an output">
+        Create an image capture source from a wl_output.
+
+        The source represents the contents of the output. The source will be
+        destroyed automatically when the output is destroyed.
+      </description>
+      <arg name="source" type="new_id" interface="ext_image_capture_source_v1"/>
+      <arg name="output" type="object" interface="wl_output"/>
+    </request>
+
+    <request name="create_from_toplevel">
+      <description summary="create a capture source from a foreign toplevel">
+        Create an image capture source from an ext_foreign_toplevel_handle_v1.
+
+        The source represents the contents of the toplevel. The source will be
+        destroyed automatically when the toplevel is destroyed.
+      </description>
+      <arg name="source" type="new_id" interface="ext_image_capture_source_v1"/>
+      <arg name="toplevel" type="object" interface="ext_foreign_toplevel_handle_v1"/>
+    </request>
+
+    <request name="destroy" type="destructor">
+      <description summary="destroy the manager">
+        Destroy the manager object.
+
+        Other objects created via this interface are unaffected.
+      </description>
+    </request>
+  </interface>
+
+  <interface name="ext_image_capture_source_v1" version="1">
+    <description summary="an image capture source">
+      This object represents a source that can be captured. It is created from
+      an output or a foreign toplevel.
+
+      The source is destroyed when the underlying output or toplevel is
+      destroyed. The client must not use the source after receiving the
+      destroyed event.
+    </description>
+
+    <event name="destroyed">
+      <description summary="the source has been destroyed">
+        The underlying output or toplevel has been destroyed. The source is
+        no longer valid and the client must destroy this object.
+
+        Any capture sessions using this source will be stopped.
+      </description>
+    </event>
+
+    <request name="destroy" type="destructor">
+      <description summary="destroy the source">
+        Destroy the source object. This does not affect the underlying output
+        or toplevel.
+      </description>
+    </request>
+  </interface>
+</protocol>
